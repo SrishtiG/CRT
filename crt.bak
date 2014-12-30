@@ -1,0 +1,54 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-advanced-reader.ss" "lang")((modname crt) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #t #t none #f ())))
+;;************************************
+;;This progam solves any given system of simultaneous equations 
+;;using the Chinese Remainder Theorem. 
+
+;;first, with coefficients and powers of 1: 
+
+;; Data definition for a System-1: 
+;; A System-1 is a (listof AL) 
+;; where the keys will be the mods and the values are the remainders. 
+;; For instance, if we have a system where an unknown nummber is congruent 
+;; to 2(mod 3) and 7(mod 10), then we write the input as '((3 2) (10 7))
+;; required that the input system has at least two elements in it. 
+
+;; (crt-1 system) : computes the value of an unknown number given properties
+;;                  as described by the system, or the string "no solution"
+;;                  if there is no solution.
+;;crt-1: (listof AL) -> (anyof Num or Sym)
+;;
+(define (crt-1 system)
+  (local 
+    [;; has-solution? : checks if a given system has a solution 
+     (define list-mods (map (lambda (x) (first x)) system))
+     (define has-solution? 
+       (local [  (define (is-coprime? num numlist)
+                 (cond 
+                   [(empty? numlist) true]
+                   [(not (= 1 (gcd num (first numlist)))) false]
+                   [else (is-coprime? num (rest numlist))]))
+               (define no-solution "no solution")
+               (define (has-soln/acc mod_list/acc)
+                 (cond [(empty? mod_list/acc) true]
+                       [(false? 
+                         (is-coprime? (first mod_list/acc) (rest mod_list/acc)))
+                        no-solution]
+                       [else (has-soln/acc (rest mod_list/acc))]))]
+         (has-soln/acc list-mods)))
+     ;; N is the product of all mods in the system 
+     (define N (foldr * 1 list-mods))
+     
+     (define raw-addlist (map (lambda (x) (/ N x)) list-mods))
+     
+     ;;now, we need to check the raw-addlist and alter it. comparator+corrector
+     ;;compares the addlist value to the corresponding AL for the same remainder
+     ;; if it is in the same modular class, the same number is spit out, else it 
+     ;; is altered using properties of mods. 
+     (define (comparator+corrector al num)
+       (cond [(= (second al) (remainder num (first al))) num]
+             [else 
+     
+    
+     
